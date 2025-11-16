@@ -1,12 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
-
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:12345678@localhost:5432/no_panic")
-
-if not SQLALCHEMY_DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is not set")
+from app.core.config import SQLALCHEMY_DATABASE_URL
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

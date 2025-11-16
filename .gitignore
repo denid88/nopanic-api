@@ -18,7 +18,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-.env
+.env.example
 .venv
 env/
 venv/
@@ -35,3 +35,5 @@ test.db
 .pytest_cache/
 htmlcov/
 .coverage
+.env.dev
+.env.prod
