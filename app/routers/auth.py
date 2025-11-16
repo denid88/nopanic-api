@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from starlette import status
 from app.core.database import get_db
+from app.core.errors import ErrorCode
 from app.core.security import hash_password, create_access_token, verify_password
 from app.models.dtos.auth.login_request import LoginRequest
 from app.models.dtos.auth.register_request import RegisterRequest
@@ -19,19 +20,20 @@ router = APIRouter(
 "/login",
     summary="Login",
     description="Login user by email",
-    response_model=TokenResponse
+    response_model=TokenResponse,
+    status_code=200
 )
 async def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(UserSchema).filter(UserSchema.email == credentials.email).first()
     if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User not found or inactive"
+            detail=ErrorCode.USER_NOT_FOUND
         )
     if not verify_password(credentials.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Невірний email або пароль"
+            detail=ErrorCode.INVALID_EMAIL_OR_PASSWORD
         )
 
     token = TokenResponse(
@@ -51,7 +53,7 @@ async def register(user: RegisterRequest, db: Session = Depends(get_db)):
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Користувач з таким email вже існує"
+            detail=ErrorCode.USER_ALREADY_EXISTS
         )
 
     otp_code = secrets.randbelow(1000000)
